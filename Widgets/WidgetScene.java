@@ -121,7 +121,6 @@ public class WidgetScene extends MTRectangle {
 						Element courant = (Element)i.next();
 						if(courant.getAttributeValue("id").equals(widget.getName()))
 						{
-							System.out.println(courant.getAttributeValue("id"));
 							widget.setAnchor(PositionAnchor.UPPER_LEFT);
 							Vector3D pos = widget.getPosition(TransformSpace.GLOBAL);
 							String x = String.valueOf((int) pos.getX());
