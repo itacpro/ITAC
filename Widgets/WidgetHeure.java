@@ -23,6 +23,7 @@ public class WidgetHeure extends MTRectangle{
 	public int seconde;
 	IFont fontArial = FontManager.getInstance().createFont(app, "LEDFont.ttf", 40, new MTColor(0,255,0));
 	public MTTextArea infos = new MTTextArea(app, fontArial);
+	private Vector3D positionTxt = new Vector3D();
 	
 	
 	public WidgetHeure(int _x, int _y, int _width, int _height, AbstractMTApplication _app) {
@@ -67,7 +68,11 @@ public class WidgetHeure extends MTRectangle{
 		 }
 		
 		 infos.setText(heureA + " : " + minuteA + " : " + secondeA);
-		 infos.setPositionRelativeToParent(new Vector3D(x + this.getWidthXY(TransformSpace.GLOBAL)/2, y + this.getHeightXY(TransformSpace.GLOBAL)/2));
+		 
+		 positionTxt.setX(x + this.getWidthXY(TransformSpace.GLOBAL)/2);
+		 positionTxt.setY(y + this.getHeightXY(TransformSpace.GLOBAL)/2);
+		 
+		 infos.setPositionRelativeToParent(positionTxt);
 	}
 	
 	public void affichageDigital(){
