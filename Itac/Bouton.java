@@ -28,7 +28,8 @@ public class Bouton extends MTRectangle{
 	public float xPos, yPos;
 	public String name;
 	public MTTextArea texte;
-	public IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 30, new MTColor(255,255,255));
+	public IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 30, new MTColor(0,0,0));
+	private Vector3D centre;
 	
 	/**
 	 * Constructeur
@@ -50,9 +51,12 @@ public class Bouton extends MTRectangle{
 		xPos = _xPos;
 		yPos = _yPos;
 		
+		centre = this.getCenterPointGlobal();
+		
+		texte = new MTTextArea(app, font);
+		texte.setText(name);
 		this.setButtonDesign();
 		this.setTouchActions();
-		texte.setText(name);
 	}
 	
 	/**
@@ -60,14 +64,13 @@ public class Bouton extends MTRectangle{
 	 */
 	public void setButtonDesign(){
 		//Apparence du bouton
-		this.setTexture(app.loadImage("bouton.png"));
+		this.setTexture(app.loadImage("../ressources/login/button-login.png"));
 		this.setNoStroke(true);
 		
 		//Apparence du texte
-		texte = new MTTextArea(app, font);
 		texte.setNoFill(true);
 		texte.setNoStroke(true);
-		texte.setPositionRelativeToParent(new Vector3D(xPos + 40, yPos + 50));
+		texte.setPositionRelativeToParent(this.getCenterPointGlobal());
 		
 		//Réinitialisation des écouteurs d'évènements
 		texte.unregisterAllInputProcessors();
@@ -96,11 +99,15 @@ public class Bouton extends MTRectangle{
 				}
 				if (te.isTapDown())
 				{
-					changeTexture("boutonHover.png");
+					changeTexture("../ressources/login/button-login-hover.png");
+					Vector3D pos = new Vector3D();
+					pos.setValues(new Vector3D(centre.getX(), centre.getY() + 2));
+					texte.setPositionRelativeToParent(pos);
 				}
 				if(te.getId() == MTGestureEvent.GESTURE_ENDED)
 				{
-					changeTexture("bouton.png");
+					changeTexture("../ressources/login/button-login.png");
+					texte.setPositionRelativeToParent(centre);
 				}
 				return false;
 			}
@@ -119,11 +126,15 @@ public class Bouton extends MTRectangle{
 				}
 				if (te.isTapDown())
 				{
-					changeTexture("boutonHover.png");
+					changeTexture("../ressources/login/button-login-hover.png");
+					Vector3D pos = new Vector3D();
+					pos.setValues(new Vector3D(centre.getX(), centre.getY() + 2));
+					texte.setPositionRelativeToParent(pos);
 				}
 				if(te.getId() == MTGestureEvent.GESTURE_ENDED)
 				{
-					changeTexture("bouton.png");
+					changeTexture("../ressources/login/button-login.png");
+					texte.setPositionRelativeToParent(centre);
 				}
 				return false;
 			}

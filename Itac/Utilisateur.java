@@ -29,8 +29,8 @@ public class Utilisateur extends MTRectangle{
 	private static org.jdom.Document document;
 	private static Element racine;
 	private AbstractMTApplication app;
-	private float xPos, yPos;
-	private IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 15, new MTColor(255,255,255));
+	private float xPos, yPos, width, height;
+	private IFont font = FontManager.getInstance().createFont(app, "Impact.ttf", 40, new MTColor(255,255,255));
 	private MTTextArea texte;
 	
 	//DŽclaration des variables d'information sur l'utilisateur
@@ -57,6 +57,8 @@ public class Utilisateur extends MTRectangle{
 		app = _app;
 		xPos = _xPos;
 		yPos = _yPos;
+		width = _width;
+		height = _height;
 		name = _name;
 		//image = "../users/" + name + "/params/profile.png";
 		recupererParams();
@@ -87,7 +89,7 @@ public class Utilisateur extends MTRectangle{
 		texte.setNoStroke(true);
 		texte.setText(name);
 		texte.setAnchor(PositionAnchor.CENTER);
-		texte.setPositionRelativeToParent(new Vector3D(xPos + 50, yPos + 120));
+		texte.setPositionGlobal(new Vector3D(xPos + width/2, yPos + height + 30));
 		this.addChild(texte);
 		
 		texte.unregisterAllInputProcessors();

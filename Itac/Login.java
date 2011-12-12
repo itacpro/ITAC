@@ -4,12 +4,17 @@ import java.util.ArrayList;
 
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
+import org.mt4j.components.visibleComponents.shapes.MTRoundRectangle;
 import org.mt4j.components.visibleComponents.widgets.MTTextArea;
 import org.mt4j.input.inputProcessors.IGestureEventListener;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.tapProcessor.TapEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.tapProcessor.TapProcessor;
 import org.mt4j.util.MTColor;
+import org.mt4j.util.animation.Animation;
+import org.mt4j.util.animation.AnimationEvent;
+import org.mt4j.util.animation.IAnimationListener;
+import org.mt4j.util.animation.MultiPurposeInterpolator;
 import org.mt4j.util.font.FontManager;
 import org.mt4j.util.font.IFont;
 import org.mt4j.util.math.Vector3D;
@@ -23,16 +28,21 @@ import Widgets.WidgetScene;
  */
 public class Login extends MTRectangle{
 	
-	//Déclaration des variables
+	//D√©claration des variables
 	private AbstractMTApplication app;
 	private Itac itacWorkflow;
 	private float xPos, yPos;
 	private Clavier keyboard;
 	private IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 30, new MTColor(255,255,255));
 	public MTTextArea message;
+	MTRectangle logoItac;
 	private ListeUtilisateurs listUsers;
+	private Utilisateur current;
+	private MTRoundRectangle userContour;
+	private MTRectangle rfidR;
+	private MTRectangle rfidL;
 	
-	//Déclaration des données
+	//D√©claration des donn√©es
 	public String cible;
 	public String password = "";
 	public String passwordCible = "";
@@ -47,7 +57,7 @@ public class Login extends MTRectangle{
 	 * @param Application
 	 * @param Scene
 	 */
-	public Login(float _xPos, float _yPos, float _width, float _height, AbstractMTApplication _app, Itac _itacWorkflow){
+	public Login(float _xPos, float _yPos, float _zPos, float _width, float _height, AbstractMTApplication _app, Itac _itacWorkflow){
 		super(_xPos, _yPos, _width, _height, _app);
 		
 		//Initialisation des variables
@@ -55,8 +65,9 @@ public class Login extends MTRectangle{
 		itacWorkflow = _itacWorkflow;
 		currentUser = itacWorkflow.currentUser;
 		
-		//Définition des paramètres d'affichage de l'application
-		keyboard = new Clavier(app.width/2f, app.height - 200, 300, 300, app, this);
+		//D√©finition des param√®tres d'affichage de l'application
+		keyboard = new Clavier(app.width/2, app.height/2 + 100, 318, 280, app, this);
+		
 		message = new MTTextArea(app, font);
 		this.addChild(message);
 		setApplicationDesign();
@@ -65,12 +76,73 @@ public class Login extends MTRectangle{
 		afficherLogoItac();
 		
 		//Affichage de la liste des utilisateurs
-		listUsers = new ListeUtilisateurs(app.width, 130, app);
+		listUsers = new ListeUtilisateurs(0, 600, app.width, 300, app);
 		setTouchActionOnUserIcon();
 		this.addChild(listUsers);
+		
+		//Icones RFID
+		rfidL = new MTRectangle(167, 172, app);
+		rfidL.setTexture(app.loadImage("../ressources/login/fleche-rfid-gauche.png"));
+		rfidL.getCenterPointGlobal();
+		rfidL.setPositionGlobal(new Vector3D(90, app.height/2));
+		rfidL.setNoStroke(true);
+		rfidL.setPickable(false);
+		this.addChild(rfidL);
+		
+		rfidR = new MTRectangle(167, 172, app);
+		rfidR.setTexture(app.loadImage("../ressources/login/fleche-rfid-droite.png"));
+		rfidR.getCenterPointGlobal();
+		rfidR.setPositionGlobal(new Vector3D(app.width-90, app.height/2));
+		rfidR.setNoStroke(true);
+		rfidR.setPickable(false);
+		this.addChild(rfidR);
+		
+		
+		//Rotation de l'√©cran
+		final MTRectangle rotate = new MTRectangle(app.width/2, app.height - 100, 118, 120, app);
+		rotate.setTexture(app.loadImage("../ressources/login/rotate.png"));
+		rotate.setNoStroke(true);
+		rotate.getCenterPointGlobal();
+		rotate.setPositionGlobal(new Vector3D(app.width/2, app.height - 200));
+		rotate.unregisterAllInputProcessors();
+		rotate.removeAllGestureEventListeners();
+		this.addChild(rotate);
+		
+		final MTRectangle rec = this;
+		
+		rotate.registerInputProcessor(new TapProcessor(app, 15));
+		rotate.addGestureListener(TapProcessor.class, new IGestureEventListener()
+		{	
+			public boolean processGestureEvent(MTGestureEvent ge)
+			{
+				TapEvent te = (TapEvent)ge;
+				
+				if (te.isTapped())
+				{
+					MultiPurposeInterpolator interpolator = new MultiPurposeInterpolator(0, 180, 1500, 0.1f, 0.7f, 1);
+					Animation animation = new Animation("Rotation", interpolator, this, 0);
+					animation.addAnimationListener(new IAnimationListener() {
+						public void processAnimationEvent(AnimationEvent ae) {
+							rec.rotateZ(new Vector3D(app.width/2, app.height/2), ae.getCurrentStepDelta());
+						}
+					});
+					animation.start();
+				}
+				if (te.isTapDown())
+				{
+					rotate.setTexture(app.loadImage("../ressources/login/rotate-hover.png"));
+				}
+				if(te.getId() == MTGestureEvent.GESTURE_ENDED)
+				{
+					rotate.setTexture(app.loadImage("../ressources/login/rotate.png"));
+				}
+				
+				return false;
+			}
+		});
 	}
 	
-	//Méthodes
+	//M√©thodes
 	
 	/**
 	 * Affiche le clavier.
@@ -87,16 +159,16 @@ public class Login extends MTRectangle{
 	}
 	
 	/**
-	 * Définit les paramètres d'affichage de l'application.
+	 * D√©finit les param√®tres d'affichage de l'application.
 	 */
 	public void setApplicationDesign(){
-		//Paramètre de l'interface
+		//Param√®tre de l'interface
 		this.setNoFill(true);
 		this.setNoStroke(true);
 		this.unregisterAllInputProcessors();
 		this.removeAllGestureEventListeners();
 		
-		//Paramètres du message d'erreur
+		//Param√®tres du message d'erreur
 		message.setVisible(false);
 		message.setNoFill(true);
 		message.setNoStroke(true);
@@ -107,21 +179,29 @@ public class Login extends MTRectangle{
 	 * Affiche le logo ITAC.
 	 */
 	public void afficherLogoItac(){
-		MTRectangle logoItac = new MTRectangle(200, 166, app);
+		logoItac = new MTRectangle(322, 322, app);
 		logoItac.getCenterPointGlobal();
-		logoItac.setPositionGlobal(new Vector3D(app.width/2f, 150));
-		logoItac.setTexture(app.loadImage("itac.png"));
+		logoItac.setPositionGlobal(new Vector3D(app.width/2f, 250));
+		logoItac.setTexture(app.loadImage("../ressources/login/logo-itac.png"));
 		logoItac.setNoStroke(true);
 		logoItac.setPickable(false);
 		
 		this.addChild(logoItac);
 	}
 	
+	public void ajouterUtilisateur(){
+		this.addChild(userContour);
+		this.addChild(current);
+	}
+	
 	/**
-	 * Vérifie si le mot de passe entré correspond à celui de l'utilisateur sélectionné.
+	 * V√©rifie si le mot de passe entr√© correspond √† celui de l'utilisateur s√©lectionn√©.
 	 * Si la condition est remplie, on charge le bureau de l'utilisateur.
 	 */
 	public void verifPassword(){
+		
+		keyboard.champ.setText(keyboard.champ.getText() + "‚óè");
+		
 		if(password.length() == 6)
 		{
 			masquerClavier();
@@ -134,7 +214,7 @@ public class Login extends MTRectangle{
 				message.setAnchor(PositionAnchor.CENTER);
 				message.setPositionGlobal(new Vector3D(app.width/2f, app.height/2f));
 				
-				//On enregistre les paramètres de l'utilisateur
+				//On enregistre les param√®tres de l'utilisateur
 				itacWorkflow.currentUser = cible;
 				itacWorkflow.changeBackground("../users/" + itacWorkflow.currentUser + "/params/background.jpg");
 				
@@ -143,7 +223,7 @@ public class Login extends MTRectangle{
 				itacWorkflow.addApplication(widgets);
 				itacWorkflow.afficherUtilisateur();
 				
-				//On détruit l'interface de login
+				//On d√©truit l'interface de login
 				this.destroy();
 			}
 			else
@@ -152,26 +232,32 @@ public class Login extends MTRectangle{
 				message.setVisible(true);
 				message.setText("Mot de passe incorrect !");
 				message.setAnchor(PositionAnchor.CENTER);
-				message.setPositionGlobal(new Vector3D(app.width/2f, 500));
+				message.setPositionGlobal(new Vector3D(app.width/2f, 900));
+				
+				keyboard.champ.setText("");
+				logoItac.setVisible(true);
+				current.setVisible(false);
+				userContour.setVisible(false);
+				listUsers.setVisible(true);
 			}
 			
 		}
 	}
 	
 	/**
-	 * Définit les actions lorsqu'on touche l'icône d'un utilisateur :
-	 *	- Change la cible sur l'écran de login
+	 * D√©finit les actions lorsqu'on touche l'ic√¥ne d'un utilisateur :
+	 *	- Change la cible sur l'√©cran de login
 	 * 	- Affiche le clavier
 	 * 	- Efface les messages d'erreur
 	 * @param Utilisateur
 	 */
 	private void setTouchActionOnUserIcon(){
-		//On récupère le nom des utilisateurs
+		//On r√©cup√®re le nom des utilisateurs
 		ArrayList<String> nomUtilisateurs = listUsers.getUsersName();
 		
 		for(int i = 0; i < listUsers.getNbUsers(); i++)
 		{
-			//On récupère le nom de l'utilisateur courrant
+			//On r√©cup√®re le nom de l'utilisateur courrant
 			final Utilisateur user = listUsers.getUser(nomUtilisateurs.get(i));
 			
 			//Ecouteur d'action
@@ -186,15 +272,29 @@ public class Login extends MTRectangle{
 					{
 						if(cible == "" || cible != user.getName())
 						{
-							//On déplace le rectangle de sélection sur l'icone de l'utilisateur
-							listUsers.selection.setPositionGlobal(user.getCenterPointGlobal());
+							//On d√©place le rectangle de s√©lection sur l'icone de l'utilisateur
+							//listUsers.selection.setPositionGlobal(user.getCenterPointGlobal());
+							
+							
 						}
-						//On change la cible et on réinitialise les paramètres
+						
+						//On change la cible et on r√©initialise les param√®tres
 						cible = user.getName();
 						password = "";
 						masquerClavier();
 						afficherClavier();
 						message.setVisible(false);
+						
+						logoItac.setVisible(false);
+						listUsers.setVisible(false);
+						
+						userContour = new MTRoundRectangle(app.width/2, 250, 0, 265, 265, 5, 5, app);
+						userContour.getCenterPointGlobal();
+						userContour.setPositionGlobal(new Vector3D(app.width/2, 250));
+						userContour.setPickable(false);
+						
+						current = new Utilisateur(cible, app.width/2, 250, 250, 250, app);
+						ajouterUtilisateur();
 					}
 					
 					return false;
@@ -202,5 +302,4 @@ public class Login extends MTRectangle{
 			});
 		}
 	}
-	
 }

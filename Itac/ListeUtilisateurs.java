@@ -21,10 +21,11 @@ public class ListeUtilisateurs extends MTRectangle {
 	
 	//Déclaration des variables
 	private AbstractMTApplication app;
+	public int x, y, width, height;
 	private ArrayList<String> users = new ArrayList<String>();
 	private int nbUsers = 0;
 	private String userSelected = "";
-	public MTRoundRectangle selection;
+	//public MTRoundRectangle selection;
 	
 	/**
 	 * Constructeur
@@ -32,15 +33,19 @@ public class ListeUtilisateurs extends MTRectangle {
 	 * @param Position sur l'axe Y
 	 * @param Application
 	 */
-	public ListeUtilisateurs(float _xPos, float _yPos, AbstractMTApplication _app) {
-		super(_xPos, _yPos, _app);
+	public ListeUtilisateurs(int _x, int _y, int _width, int _height, AbstractMTApplication _app) {
+		super(_x, _y, _app);
 		
 		//Récupération des paramètres
 		app = _app;
+		x = _x;
+		y = _y;
+		width = _width;
+		height = _height;
 		
 		//Affichage du rectangle de sélection
-		selection = new MTRoundRectangle(-1000, 0, 0, 103, 103, 4, 4, app);
-		this.addChild(selection);
+		//selection = new MTRoundRectangle(-1000, 0, 0, 250, 250, 4, 4, app);
+		//this.addChild(selection);
 		
 		setListeDesign();
 		compterUtilisateurs();
@@ -75,16 +80,21 @@ public class ListeUtilisateurs extends MTRectangle {
 	 * On affiche chacun des utilisateurs référencés dans la variable users.
 	 */
 	public void listerUtilisateurs(){
-		int ecart = 150;
+		int ecart = 350;
 		int taille = (nbUsers * ecart) - ecart;
 		
 		for(int i = 0; i < nbUsers; i++)
 		{
 			int x = (((app.width - taille) / 2) + i * ecart);
-			Utilisateur user = new Utilisateur((String)users.get(i), x, 50, 100, 100, app);
+			Utilisateur user = new Utilisateur((String)users.get(i), x, y, 250, 250, app);
+			MTRoundRectangle userContour = new MTRoundRectangle(x, y, 0, 265, 265, 5, 5, app);
+			userContour.getCenterPointGlobal();
+			userContour.setPositionGlobal(new Vector3D(x, y));
+			userContour.setPickable(false);
 			
 			//setTouchActions(user);
 			
+			this.addChild(userContour);
 			this.addChild(user);
 		}
 	}
@@ -93,7 +103,6 @@ public class ListeUtilisateurs extends MTRectangle {
 	 * Définit les paramètres d'affichage de la liste.
 	 */
 	public void setListeDesign(){
-		this.setPositionGlobal(new Vector3D(app.width/2f, 350));
 		this.setNoFill(true);
 		this.setNoStroke(true);
 		this.unregisterAllInputProcessors();

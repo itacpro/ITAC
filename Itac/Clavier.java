@@ -2,6 +2,7 @@ package Itac;
 
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
+import org.mt4j.components.visibleComponents.widgets.MTTextArea;
 import org.mt4j.util.MTColor;
 import org.mt4j.util.font.FontManager;
 import org.mt4j.util.font.IFont;
@@ -17,8 +18,9 @@ public class Clavier extends MTRectangle{
 	//DŽclaration des variables
 	public AbstractMTApplication app;
 	public Login application;
-	public float xPos, yPos;
+	public float xPos, yPos, width, height;
 	public IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 30, new MTColor(255,255,255));
+	public MTTextArea champ;
 	
 	/**
 	 * Constructeur
@@ -37,6 +39,17 @@ public class Clavier extends MTRectangle{
 		application = _application;
 		xPos = _xPos;
 		yPos = _yPos;
+		width = _width;
+		height = _height;
+		
+		this.setAnchor(PositionAnchor.CENTER);
+		this.setPositionGlobal(new Vector3D(xPos, yPos));
+		
+		champ = new MTTextArea(xPos, yPos - 65, 318, 48, font, app);
+		champ.setTexture(app.loadImage("../ressources/login/input-login.png"));
+		champ.setPickable(false);
+		champ.setNoStroke(true);
+		this.addChild(champ);
 		
 		setKeyboardDesign();
 		addButtons();
@@ -47,7 +60,6 @@ public class Clavier extends MTRectangle{
 	 */
 	public void setKeyboardDesign(){
 		this.getCenterPointGlobal();
-		this.setPositionGlobal(new Vector3D(app.width/2f, app.height - 200));
 		this.setNoFill(true);
 		this.setNoStroke(true);
 		
@@ -59,18 +71,19 @@ public class Clavier extends MTRectangle{
 	 * Ajoute 9 boutons au clavier
 	 */
 	public void addButtons(){
-		float x = app.width/2f;
-		float y = app.height - 200;
+		float x = xPos + 15;
+		float y = yPos;
 		
-		Bouton bouton1 = new Bouton("1", x + 0, y + 0, 100, 100, app, application);
-		Bouton bouton2 = new Bouton("2", x + 100, y + 0, 100, 100, app, application);
-		Bouton bouton3 = new Bouton("3", x + 200, y + 0, 100, 100, app, application);
-		Bouton bouton4 = new Bouton("4", x + 0, y + 100, 100, 100, app, application);
-		Bouton bouton5 = new Bouton("5", x + 100, y + 100, 100, 100, app, application);
-		Bouton bouton6 = new Bouton("6", x + 200, y + 100, 100, 100, app, application);
-		Bouton bouton7 = new Bouton("7", x + 0, y + 200, 100, 100, app, application);
-		Bouton bouton8 = new Bouton("8", x + 100, y + 200, 100, 100, app, application);
-		Bouton bouton9 = new Bouton("9", x + 200, y + 200, 100, 100, app, application);
+		Bouton bouton1 = new Bouton("1", x + 0, y + 0, 83, 79, app, application);
+		Bouton bouton2 = new Bouton("2", x + 100, y + 0, 83, 79, app, application);
+		Bouton bouton3 = new Bouton("3", x + 200, y + 0, 83, 79, app, application);
+		Bouton bouton4 = new Bouton("4", x + 0, y + 90, 83, 79, app, application);
+		Bouton bouton5 = new Bouton("5", x + 100, y + 90, 83, 79, app, application);
+		Bouton bouton6 = new Bouton("6", x + 200, y + 90, 83, 79, app, application);
+		Bouton bouton7 = new Bouton("7", x + 0, y + 180, 83, 79, app, application);
+		Bouton bouton8 = new Bouton("8", x + 100, y + 180, 83, 79, app, application);
+		Bouton bouton9 = new Bouton("9", x + 200, y + 180, 83, 79, app, application);
+		Bouton bouton0 = new Bouton("0", x + 100, y + 270, 83, 79, app, application);
 		
 		this.addChild(bouton1);
 		this.addChild(bouton2);
@@ -81,5 +94,6 @@ public class Clavier extends MTRectangle{
 		this.addChild(bouton7);
 		this.addChild(bouton8);
 		this.addChild(bouton9);
+		this.addChild(bouton0);
 	}
 }

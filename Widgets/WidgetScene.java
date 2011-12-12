@@ -86,8 +86,21 @@ public class WidgetScene extends MTRectangle {
 				threadHeure.start();
 				isWidgetHeure  = true;
 			}
+			
+			if(courant.getChild("type").getText().equals("tv"))
+			{
+				int x, y;
+				x = Integer.parseInt(courant.getChild("posX").getText());
+				y = Integer.parseInt(courant.getChild("posY").getText());
+				WidgetTV tv = new WidgetTV(app, x, y, 300, 200);
+				tv.setName(courant.getAttributeValue("id"));
+				setTouchAction(tv);
+				this.addChild(tv);
+			}
 		}
 		
+		//WidgetCalc calc = new WidgetCalc(app, 0, 0, 230, 300);
+		//this.addChild(calc);
 		
 		this.setApplicationDesign();
 	}

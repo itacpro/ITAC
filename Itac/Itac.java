@@ -1,5 +1,10 @@
 package Itac;
 
+import java.awt.Cursor;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.image.MemoryImageSource;
 import java.util.ArrayList;
 
 import org.mt4j.AbstractMTApplication;
@@ -31,12 +36,17 @@ public class Itac extends AbstractScene{
 		
 		//Affichage des cercles de pointage
 		this.registerGlobalInputProcessor(new CursorTracer(app, this));
-		background = app.loadImage("water.png");
+		background = app.loadImage("../ressources/login/fond-ecran-default.png");
 		this.getCanvas().addChild(new MTBackgroundImage(app, background, false));
 		
 		//Application de démarrage
-		Login login = new Login(0, 0, app.width, app.height, app, this);
+		Login login = new Login(0, 0, app.width, app.height, 1000, app, this);
 		this.addApplication(login);
+		
+		int[] pixels = new int[16 * 16];
+		Image image = Toolkit.getDefaultToolkit().createImage(new MemoryImageSource(16, 16, pixels, 0, 16));
+		Cursor transparentCursor = Toolkit.getDefaultToolkit().createCustomCursor(image, new Point(0, 0), "invisibleCursor");
+		app.setCursor(transparentCursor);
 	}
 	
 	public void addApplication(MTRectangle application){
@@ -60,10 +70,10 @@ public class Itac extends AbstractScene{
 			children[i].destroy();
 			System.out.println("Détruit !");
 		}
+		this.registerGlobalInputProcessor(new CursorTracer(app, this));
+		changeBackground("../ressources/login/fond-ecran-default.png");
 		
-		changeBackground("water.png");
-		
-		Login login = new Login(0, 0, app.width, app.height, app, this);
+		Login login = new Login(0, 0, app.width, app.height, 1000, app, this);
 		this.addApplication(login);
 	}
 	
