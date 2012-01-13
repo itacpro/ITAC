@@ -22,6 +22,8 @@ import org.mt4j.input.inputProcessors.componentProcessors.tapProcessor.TapProces
 import org.mt4j.util.math.Vector3D;
 
 import Itac.Utilisateur;
+import Photo.Photo;
+import Photo.PhotoScene;
 
 public class WidgetScene extends MTRectangle {
 	
@@ -67,7 +69,8 @@ public class WidgetScene extends MTRectangle {
 				int x, y;
 				x = Integer.parseInt(courant.getChild("posX").getText());
 				y = Integer.parseInt(courant.getChild("posY").getText());
-				WidgetMeteo meteo = new WidgetMeteo(x, y, 300, 200, app);
+				WidgetMeteo meteo = new WidgetMeteo(x, y, 300, 200, app, Integer.parseInt(courant.getChild("weatherCode").getText()));
+				meteo.setAnchor(PositionAnchor.UPPER_LEFT);
 				meteo.setName(courant.getAttributeValue("id"));
 				setTouchAction(meteo);
 				this.addChild(meteo);
@@ -78,7 +81,8 @@ public class WidgetScene extends MTRectangle {
 				int x, y;
 				x = Integer.parseInt(courant.getChild("posX").getText());
 				y = Integer.parseInt(courant.getChild("posY").getText());
-				WidgetHeure heure = new WidgetHeure(x, y, 201, 198, app);
+				WidgetHeure heure = new WidgetHeure(x, y, 483, 183, app);
+				heure.setAnchor(PositionAnchor.UPPER_LEFT);
 				heure.setName(courant.getAttributeValue("id"));
 				setTouchAction(heure);
 				this.addChild(heure);
@@ -92,15 +96,48 @@ public class WidgetScene extends MTRectangle {
 				int x, y;
 				x = Integer.parseInt(courant.getChild("posX").getText());
 				y = Integer.parseInt(courant.getChild("posY").getText());
-				WidgetTV tv = new WidgetTV(app, x, y, 300, 200);
+				WidgetTV tv = new WidgetTV(app, x, y, 270, 280);
+				tv.setAnchor(PositionAnchor.UPPER_LEFT);
 				tv.setName(courant.getAttributeValue("id"));
 				setTouchAction(tv);
 				this.addChild(tv);
 			}
+			
+			if(courant.getChild("type").getText().equals("calc"))
+			{
+				int x, y;
+				x = Integer.parseInt(courant.getChild("posX").getText());
+				y = Integer.parseInt(courant.getChild("posY").getText());
+				WidgetCalc calc = new WidgetCalc(app, x, y, 242, 291);
+				calc.setAnchor(PositionAnchor.UPPER_LEFT);
+				calc.setName(courant.getAttributeValue("id"));
+				setTouchAction(calc);
+				this.addChild(calc);
+			}
 		}
 		
-		//WidgetCalc calc = new WidgetCalc(app, 0, 0, 230, 300);
-		//this.addChild(calc);
+		MTRectangle button = new MTRectangle(100, 800, 100, 100, app);
+		button.setTexture(app.loadImage("../ressources/photo/icon.png"));
+		button.setNoStroke(true);
+		this.addChild(button);
+		
+		final WidgetScene scene = this;
+		
+		button.registerInputProcessor(new TapProcessor(app, 10));
+		button.addGestureListener(TapProcessor.class, new IGestureEventListener()
+		{	
+			public boolean processGestureEvent(MTGestureEvent ge)
+			{
+				TapEvent te = (TapEvent)ge;
+				if (te.isTapped())
+				{	
+					final PhotoScene photoApp = new PhotoScene(app, 0, 0, app.width, app.height);
+					scene.addChild(photoApp);
+				}
+				
+				return false;
+			}
+		});
 		
 		this.setApplicationDesign();
 	}

@@ -21,9 +21,10 @@ public class WidgetHeure extends MTRectangle{
 	public int heure;
 	public int minute;
 	public int seconde;
-	IFont fontArial = FontManager.getInstance().createFont(app, "LEDFont.ttf", 40, new MTColor(0,255,0));
+	IFont fontArial = FontManager.getInstance().createFont(app, "AlteHaasGroteskBold.ttf", 70, new MTColor(0,0,0));
 	public MTTextArea infos = new MTTextArea(app, fontArial);
 	private Vector3D positionTxt = new Vector3D();
+	private boolean bool = false;
 	
 	
 	public WidgetHeure(int _x, int _y, int _width, int _height, AbstractMTApplication _app) {
@@ -44,7 +45,7 @@ public class WidgetHeure extends MTRectangle{
 	    minute = date.get(Calendar.MINUTE);
 	    seconde = date.get(Calendar.SECOND);
 	    
-	    System.out.println(heure + " : " + minute + " : " + seconde);
+	    //System.out.println(heure + " : " + minute + " : " + seconde);
 	}
 	
 	public void afficherHeure(){
@@ -67,10 +68,21 @@ public class WidgetHeure extends MTRectangle{
 			 secondeA = "0" + secondeA;
 		 }
 		
-		 infos.setText(heureA + " : " + minuteA + " : " + secondeA);
+		 //infos.setText(heureA + " : " + minuteA + " : " + secondeA);
 		 
-		 positionTxt.setX(x + this.getWidthXY(TransformSpace.GLOBAL)/2);
-		 positionTxt.setY(y + this.getHeightXY(TransformSpace.GLOBAL)/2);
+		 if(bool == false)
+		 {
+			 infos.setText(heureA + " : " + minuteA);
+			 bool = true;
+		 }
+		 else
+		 {
+			 infos.setText(heureA + "   " + minuteA);
+			 bool = false;
+		 }
+		 
+		 positionTxt.setX(x + 190);
+		 positionTxt.setY(y + this.getHeightXY(TransformSpace.GLOBAL)/2 - 10);
 		 
 		 infos.setPositionRelativeToParent(positionTxt);
 	}
@@ -78,7 +90,7 @@ public class WidgetHeure extends MTRectangle{
 	public void affichageDigital(){
 		System.out.println(heure + " : " + minute + " : " + seconde);
 		
-		setTexture(app.loadImage("clock.png"));
+		setTexture(app.loadImage("../ressources/widget-heure/fond.png"));
 		setNoStroke(true);
 		
 		infos.setFillColor(new MTColor(0, 0, 0, 0));

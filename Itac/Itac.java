@@ -5,11 +5,11 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
-import java.util.ArrayList;
-
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.components.MTComponent;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
+import org.mt4j.components.visibleComponents.shapes.MTRectangle.PositionAnchor;
+import org.mt4j.components.visibleComponents.shapes.MTRoundRectangle;
 import org.mt4j.components.visibleComponents.widgets.MTBackgroundImage;
 import org.mt4j.components.visibleComponents.widgets.MTTextArea;
 import org.mt4j.input.inputProcessors.IGestureEventListener;
@@ -18,10 +18,17 @@ import org.mt4j.input.inputProcessors.componentProcessors.tapProcessor.TapEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.tapProcessor.TapProcessor;
 import org.mt4j.input.inputProcessors.globalProcessors.CursorTracer;
 import org.mt4j.sceneManagement.AbstractScene;
-
-import com.sun.org.apache.xpath.internal.operations.Gte;
+import org.mt4j.util.MTColor;
+import org.mt4j.util.animation.Animation;
+import org.mt4j.util.animation.AnimationEvent;
+import org.mt4j.util.animation.IAnimationListener;
+import org.mt4j.util.animation.MultiPurposeInterpolator;
+import org.mt4j.util.font.FontManager;
+import org.mt4j.util.font.IFont;
+import org.mt4j.util.math.Vector3D;
 
 import processing.core.PImage;
+import sound.Mp3Player;
 
 public class Itac extends AbstractScene{
 	
@@ -38,6 +45,30 @@ public class Itac extends AbstractScene{
 		this.registerGlobalInputProcessor(new CursorTracer(app, this));
 		background = app.loadImage("../ressources/login/fond-ecran-default.png");
 		this.getCanvas().addChild(new MTBackgroundImage(app, background, false));
+		
+		final MTRectangle start = new MTRectangle(0, 0, 50, app.width, app.height, app);
+		start.setFillColor(new MTColor(0, 0, 0));
+		start.setNoStroke(true);
+		start.removeAllGestureEventListeners();
+		this.getCanvas().addChild(start);
+		
+		MultiPurposeInterpolator in = new MultiPurposeInterpolator(255, 0, 4000, 0, 0, 1);
+		Animation animation = new Animation("fading", in, this);
+		animation.addAnimationListener(new IAnimationListener() {
+		    public void processAnimationEvent(AnimationEvent ae) {
+		        //fade using ae.getValue() as alpha
+		    	start.setFillColor(new MTColor(0, 0, 0, ae.getValue()));
+		    	
+		    	if(ae.getValue() == 0)
+				{
+					start.destroy();
+				}
+		    }
+		});
+		animation.start(); 
+		
+		
+		Mp3Player.play("../ressources/sound/initialyze.mp3");
 		
 		//Application de démarrage
 		Login login = new Login(0, 0, app.width, app.height, 1000, app, this);
@@ -78,11 +109,34 @@ public class Itac extends AbstractScene{
 	}
 	
 	public void afficherUtilisateur(){
-		Utilisateur user = new Utilisateur(currentUser, 60, 60, 100, 100, app);
+		
+		@SuppressWarnings("deprecation")
+		MTRoundRectangle userBg = new MTRoundRectangle(30, 30, 0, 110, 110, 5, 5, app);
+		userBg.removeAllGestureEventListeners();
+		
+		//Image utilisateur
+		Utilisateur user = new Utilisateur(currentUser, 85, 85, 100, 100, app);
+		user.texte.setVisible(false);
+		
+		//Nom de l'utilisateur
+		IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 40, new MTColor(255,255,255));
+		MTTextArea texte = new MTTextArea(app, font);
+		texte.setNoFill(true);
+		texte.setNoStroke(true);
+		texte.setText(user.getName());
+		texte.setAnchor(PositionAnchor.UPPER_LEFT);
+		texte.setPositionGlobal(new Vector3D(150, 30));
+		
+		//Bouton de déconnexion
+		
+		final MTRectangle deconnect = new MTRectangle(150, 100, 94, 33, app);
+		deconnect.setTexture(app.loadImage("../ressources/login/btn_deconnexion.png"));
+		deconnect.removeAllGestureEventListeners();
+		deconnect.setNoStroke(true);
 		
 		//Ecouteur d'action
-		user.registerInputProcessor(new TapProcessor(app, 15));
-		user.addGestureListener(TapProcessor.class, new IGestureEventListener()
+		deconnect.registerInputProcessor(new TapProcessor(app, 15));
+		deconnect.addGestureListener(TapProcessor.class, new IGestureEventListener()
 		{	
 			public boolean processGestureEvent(MTGestureEvent ge)
 			{
@@ -92,11 +146,21 @@ public class Itac extends AbstractScene{
 				{
 					deconnexion();
 				}
+				if (te.isTapDown())
+				{
+					deconnect.setTexture(app.loadImage("../ressources/login/btn_deconnexion_hover.png"));
+				}
+				if(te.getId() == MTGestureEvent.GESTURE_ENDED)
+				{
+					deconnect.setTexture(app.loadImage("../ressources/login/btn_deconnexion.png"));
+				}
 				
 				return false;
 			}
 		});
-		
+		this.getCanvas().addChild(userBg);
 		this.getCanvas().addChild(user);
+		this.getCanvas().addChild(texte);
+		this.getCanvas().addChild(deconnect);
 	}
 }

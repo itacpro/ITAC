@@ -41,7 +41,7 @@ public class WidgetTV extends MTRectangle {
 		x = (int) _x;
 		y = (int) _y;
 		
-		liste = new MTList(app, 0, 0, 270, 170);
+		liste = new MTList(app, 0, 150, 230, 210);
 		
 		URL fichierXML = null;
 		SAXBuilder sxb = new SAXBuilder();
@@ -91,18 +91,21 @@ public class WidgetTV extends MTRectangle {
 					chaines.add(chaine);
 					System.out.println(chaine);
 					
-					MTRectangle image = new MTRectangle(1, 10, 70, 30, app);
+					MTRectangle image = new MTRectangle(1, 10, 50, 21, app);
 					image.setTexture(app.loadImage("../ressources/widget-tv/" + cpt + ".gif"));
 					image.setNoStroke(true);
 					image.setPickable(false);
 					
-					MTTextArea texte = new MTTextArea(65, 5, 190, 65, app);
+					IFont fontArial = FontManager.getInstance().createFont(app, "arial.ttf", 15, new MTColor(0, 0, 0));
+					
+					MTTextArea texte = new MTTextArea(55, 5, 190, 45, fontArial, app);
 					//texte.setPositionRelativeToParent(new Vector3D(70, 10));
 					texte.setText(prog);
 					texte.setNoFill(true);
 					texte.setNoStroke(true);
 					
-					MTListCell cellule = new MTListCell(278, 65, app);
+					MTListCell cellule = new MTListCell(230, 45, app);
+					cellule.setNoStroke(true);
 					cellule.addChild(image);
 					cellule.addChild(texte);
 					
@@ -124,15 +127,13 @@ public class WidgetTV extends MTRectangle {
 	}
 	
 	public void setTVDesign(){
-		IFont fontArial = FontManager.getInstance().createFont(app, "arial.ttf", 20, new MTColor(255,255,255));
-		
-		this.setTexture(app.loadImage("weather.png"));
+		this.setTexture(app.loadImage("../ressources/widget-tv/fd_programmeTV.png"));
 		this.setNoStroke(true);
 		
-		liste.setFillColor(new MTColor(150,150,150,100));
-		liste.setNoStroke(true);
+		liste.setNoFill(true);
 		liste.setAnchor(PositionAnchor.CENTER);
 		liste.setPositionGlobal(this.getCenterPointGlobal());
+		liste.setPositionGlobal(new Vector3D(x + 135, y + 165));
 		
 		this.addChild(liste);
 		

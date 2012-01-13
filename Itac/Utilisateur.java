@@ -31,7 +31,7 @@ public class Utilisateur extends MTRectangle{
 	private AbstractMTApplication app;
 	private float xPos, yPos, width, height;
 	private IFont font = FontManager.getInstance().createFont(app, "Impact.ttf", 40, new MTColor(255,255,255));
-	private MTTextArea texte;
+	public MTTextArea texte;
 	
 	//DŽclaration des variables d'information sur l'utilisateur
 	private String name;

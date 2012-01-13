@@ -1,6 +1,9 @@
 package Itac;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+import javazoom.jl.decoder.JavaLayerException;
 
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
@@ -19,6 +22,16 @@ import org.mt4j.util.font.FontManager;
 import org.mt4j.util.font.IFont;
 import org.mt4j.util.math.Vector3D;
 
+import com.phidgets.PhidgetException;
+import com.phidgets.RFIDPhidget;
+import com.phidgets.event.AttachEvent;
+import com.phidgets.event.AttachListener;
+import com.phidgets.event.TagGainEvent;
+import com.phidgets.event.TagGainListener;
+import com.phidgets.event.TagLossEvent;
+import com.phidgets.event.TagLossListener;
+
+import RFID.RFID;
 import Widgets.WidgetScene;
 
 /**
@@ -29,8 +42,8 @@ import Widgets.WidgetScene;
 public class Login extends MTRectangle{
 	
 	//Déclaration des variables
-	private AbstractMTApplication app;
-	private Itac itacWorkflow;
+	public AbstractMTApplication app;
+	public Itac itacWorkflow;
 	private float xPos, yPos;
 	private Clavier keyboard;
 	private IFont font = FontManager.getInstance().createFont(app, "arial.ttf", 30, new MTColor(255,255,255));
@@ -47,6 +60,13 @@ public class Login extends MTRectangle{
 	public String password = "";
 	public String passwordCible = "";
 	public String currentUser;
+	public Login login;
+	
+	public RFID rfid = null;
+	public boolean rfidConnect = false;
+	public boolean rfidConnectInput = false;
+	public String UserID = "01068e27b6";
+	public String UserName = "zzz";
 	
 	/**
 	 * Constructeur
@@ -98,6 +118,14 @@ public class Login extends MTRectangle{
 		this.addChild(rfidR);
 		
 		
+		//Version
+		MTTextArea version = new MTTextArea(app, font);
+		this.addChild(version);
+		version.setText("ITAC v1.0 - TouchDown 2011-2012");
+		version.setPositionGlobal(new Vector3D(270, app.height-50));
+		version.setNoStroke(true);
+		version.setNoFill(true);
+		
 		//Rotation de l'écran
 		final MTRectangle rotate = new MTRectangle(app.width/2, app.height - 100, 118, 120, app);
 		rotate.setTexture(app.loadImage("../ressources/login/rotate.png"));
@@ -140,6 +168,43 @@ public class Login extends MTRectangle{
 				return false;
 			}
 		});
+		
+		login = this;
+		
+		final Thread t = new Thread(){
+			public void run() {
+				
+				try {
+					setRFID();
+				} catch (PhidgetException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				while(true)
+				{	
+					if(rfidConnect == true && rfidConnectInput == false)
+					{
+						//On enregistre les paramètres de l'utilisateur
+						cible = rfid.UserName;
+						itacWorkflow.currentUser = cible;
+						itacWorkflow.changeBackground("../users/" + itacWorkflow.currentUser + "/params/background.jpg");
+						
+						//On charge le bureau de l'utilisateur
+						WidgetScene widgets = new WidgetScene(0, 0, 300, 200, app, new Utilisateur(itacWorkflow.currentUser, 60, 60, 100, 100, app));
+						itacWorkflow.addApplication(widgets);
+						itacWorkflow.afficherUtilisateur();
+						
+						
+						rfidConnectInput = true;
+					}
+				}
+			}
+		};
+		t.start();
 	}
 	
 	//Méthodes
@@ -300,6 +365,56 @@ public class Login extends MTRectangle{
 					return false;
 				}
 			});
+		}
+	}
+	
+	public void setRFID() throws PhidgetException, IOException{
+		RFIDPhidget rfid;
+		
+		//System.out.println(Phidget.getLibraryVersion());
+
+		rfid = new RFIDPhidget();
+		rfid.addAttachListener(new AttachListener() {
+			public void attached(AttachEvent ae)
+			{
+				try
+				{
+					((RFIDPhidget)ae.getSource()).setAntennaOn(true);
+					((RFIDPhidget)ae.getSource()).setLEDOn(true);
+				}
+				catch (PhidgetException ex) { }
+				//System.out.println("attachment of " + ae);
+			}
+		});
+		
+		//Méthode de détection des tags RFID en Input
+		rfid.addTagGainListener(new TagGainListener()
+		{
+			public void tagGained(TagGainEvent gain)
+			{
+				//System.out.println("Tag : " + gain.getValue());
+				
+				if(gain.getValue().equals(UserID))
+				{
+					if(rfidConnect == false) 
+					{
+						System.out.println("Connexion de "+ UserName +" !");
+						rfidConnect = true;
+					}
+				}
+			}
+		});
+
+		rfid.openAny();
+		
+		System.in.read();
+		System.out.print("closing...");
+		rfid.close();
+		rfid = null;
+		System.out.println(" ok");
+		if (false) {
+			System.out.println("wait for finalization...");
+			System.gc();
 		}
 	}
 }

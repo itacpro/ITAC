@@ -10,10 +10,10 @@ import org.mt4j.AbstractMTApplication;
 import org.mt4j.components.MTComponent;
 import org.mt4j.components.TransformSpace;
 import org.mt4j.components.visibleComponents.shapes.MTRectangle;
-import org.mt4j.components.visibleComponents.widgets.MTImage;
 import org.mt4j.components.visibleComponents.widgets.MTList;
-import org.mt4j.components.visibleComponents.widgets.MTListCell;
+import org.mt4j.components.visibleComponents.widgets.MTSlider;
 import org.mt4j.components.visibleComponents.widgets.MTTextArea;
+import org.mt4j.input.gestureAction.InertiaDragAction;
 import org.mt4j.input.inputProcessors.IGestureEventListener;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragEvent;
@@ -41,8 +41,8 @@ public class PhotoScene extends MTRectangle{
 	private MTRectangle poignee;
 	
 	//Propriétés du navigateur de fichiers
-	private int navWidth = 466;
-	private int poigneeWidth = 29;
+	private int navWidth = 473;
+	private int poigneeWidth = 48;
 	private int poigneeHeight = 123;
 	
 	//Propriétés des cellules
@@ -74,14 +74,14 @@ public class PhotoScene extends MTRectangle{
 		
 		//Cadre du navigateur
 		cadreNav = new MTRectangle(width - navWidth, 0, navWidth, height, app);
-		cadreNav.setTexture(app.loadImage("../ressources/photo/volet.png"));
+		cadreNav.setTexture(app.loadImage("../ressources/photo/fd_AppPhoto.png"));
 		cadreNav.setPickable(false);
 		cadreNav.setNoStroke(true);
 		
 		//Création de la poignée du volet
 		poignee = new MTRectangle(0, 0, poigneeWidth, poigneeHeight, app);
-		poignee.setPositionGlobal(new Vector3D(width - navWidth - poigneeWidth/2 +1, height/2));
-		poignee.setTexture(app.loadImage("../ressources/photo/poignee.png"));
+		poignee.setPositionGlobal(new Vector3D(width - navWidth - poigneeWidth/2 + 5, height/2));
+		poignee.setTexture(app.loadImage("../ressources/photo/fd_btn_AppPhoto.png"));
 		poignee.setNoStroke(true);
 		actionPoignee();
 		
@@ -95,6 +95,43 @@ public class PhotoScene extends MTRectangle{
 		
 		loadImages();
 		
+		
+		final MTRectangle closeButton = new MTRectangle(app.width - 160, 30, 130, 36, app);
+		closeButton.setNoStroke(true);
+		closeButton.removeAllGestureEventListeners();
+		closeButton.setTexture(app.loadImage("../ressources/photo/btn_quitter.png"));
+		cadreNav.addChild(closeButton);
+		
+		final PhotoScene photoApp = this;
+		
+		closeButton.registerInputProcessor(new TapProcessor(app, 10));
+		closeButton.addGestureListener(TapProcessor.class, new IGestureEventListener()
+		{	
+			public boolean processGestureEvent(MTGestureEvent ge)
+			{
+				TapEvent te = (TapEvent)ge;
+				if (te.isTapped())
+				{
+					photoApp.destroy();
+				}
+				if (te.isTapDown())
+				{
+					closeButton.setTexture(app.loadImage("../ressources/photo/btn_quitter_hover.png"));
+				}
+				if(te.getId() == MTGestureEvent.GESTURE_ENDED)
+				{
+					closeButton.setTexture(app.loadImage("../ressources/photo/btn_quitter.png"));
+				}
+				return false;
+			}
+		});
+		
+		/*
+		MTSlider test = new MTSlider(100, 300, 800, 50, 0, 100, app);
+		test.setTexture(app.loadImage("../ressources/photo/poignee.png"));
+		test.setStrokeColor(new MTColor(0,0,0));
+		this.addChild(test);
+		*/
 	}
 	
 	//Chargement des images
@@ -127,6 +164,7 @@ public class PhotoScene extends MTRectangle{
 				cell.setNoFill(true);
 				cell.setNoStroke(true);
 				cell.id = cpt;
+				cell.setName(String.valueOf(cpt));
 				navigateur.addChild(cell);
 				
 				photos[cpt] = new Photo[courant.getChild("photos").getChildren("photo").size()];
@@ -150,7 +188,7 @@ public class PhotoScene extends MTRectangle{
 					//Orientation des images
 					if(k != 1)
 					{
-						float angle = (float) Math.random() * 45;
+						float angle = (float) Math.random() * 15;
 						float randomBool = (float) Math.random();
 						
 						if(randomBool <= 0.5)
@@ -199,10 +237,10 @@ public class PhotoScene extends MTRectangle{
 		        Vector3D position = poignee.getPosition(TransformSpace.GLOBAL);
 		        Vector3D vecteur = de.getTranslationVect();
 		        
-		        if(position.getX() >= (width - navWidth - poigneeWidth/2) && position.getX() <= (width - poigneeWidth/2))
+		        if(position.getX() >= (width - navWidth - poigneeWidth/2 + 5) && position.getX() <= (width - poigneeWidth/2 + 5))
 		        {
-		        	if((vecteur.getX() + position.getX()) >= (width - navWidth - poigneeWidth/2) &&
-		        			(vecteur.getX() + position.getX()) <= (width - poigneeWidth/2))
+		        	if((vecteur.getX() + position.getX()) >= (width - navWidth - poigneeWidth/2 + 5) &&
+		        			(vecteur.getX() + position.getX()) <= (width - poigneeWidth/2 + 5))
 		        	{
 		        		de.getTargetComponent().translateGlobal(new Vector3D(vecteur.getX(), 0)); //Moves the component
 		        		cadreNav.translateGlobal(new Vector3D(vecteur.getX(), 0));
@@ -215,7 +253,7 @@ public class PhotoScene extends MTRectangle{
 	
 	private void actionCellule(final Cellule cell){
 		final MTRectangle photoApp = this;
-		cell.registerInputProcessor(new TapProcessor(app, 15));
+		cell.registerInputProcessor(new TapProcessor(app, 10));
 		cell.addGestureListener(TapProcessor.class, new IGestureEventListener()
 		{	
 			public boolean processGestureEvent(MTGestureEvent ge)
@@ -229,6 +267,8 @@ public class PhotoScene extends MTRectangle{
 						
 						for(int i = 0; i < photos[idCellOpened].length; i++)
 						{
+							cell.background.setVisible(true);
+							
 							photos[idCellOpened][i].removeFromParent();
 							photos[idCellOpened][i].setPositionRelativeToParent(cell.getCenterPointGlobal());
 							photos[idCellOpened][i].rotateZ(photos[idCellOpened][i].getCenterPointGlobal(), -photos[idCellOpened][i].angle);
@@ -237,23 +277,21 @@ public class PhotoScene extends MTRectangle{
 							
 							final int j = i;
 							
+							int x = (int) ((Math.random() * (width - navWidth - 500) + 200));
+							final int y = (int) ((Math.random() * (height-200) + 200));
+							
+							//Calcul du trajet vertical à parcourir
+							final float DX = (x - photos[idCellOpened][i].getPosition(TransformSpace.GLOBAL).x)/20;
+							final float DY = (y - photos[idCellOpened][i].getPosition(TransformSpace.GLOBAL).y)/20;
+							
+							
 							//Définition de l'animation de la translation
-							final Animation translation = new Animation("translation", new MultiPurposeInterpolator(app.width/2f, app.height/3f, 500, 0, 1, 1) , photos[idCellOpened][i]);
+							final Animation translation = new Animation("translation", new MultiPurposeInterpolator(photos[idCellOpened][j].getPosition(TransformSpace.GLOBAL).x, x, 500, 0, 1, 1) , photos[idCellOpened][i]);
 							translation.addAnimationListener(new IAnimationListener(){
 					        	@Override
 					        	public void processAnimationEvent(AnimationEvent ae) {
-					        		//On récupère les coordonnées actuelles de la photo
-					        		Vector3D photoPos = new Vector3D(photos[idCellOpened][j].getCenterPointRelativeToParent());
-					        		
-					        		//Calcul des variables du vecteur
-					        		int x = (int) (app.width/2f - photoPos.x)/5;
-					        		int y = (int) (app.height/3f - photoPos.y)/5;
-					        		
-					        		//int x = (int) (width - navWidth - (Math.random() * (width - navWidth))) / 5;
-					        		//int y = (int) (width - (Math.random() * (width - navWidth))) / 5;
-					        		
-					        		//Application de la translation
-					        		photos[idCellOpened][j].translate(new Vector3D(x, y), TransformSpace.RELATIVE_TO_PARENT);
+					        		//photos[idCellOpened][j].setPositionGlobal(new Vector3D(ae.getValue(), y));
+					        		photos[idCellOpened][j].translate(new Vector3D(DX, DY));
 					        	}
 					        }).start();
 						}
@@ -261,7 +299,43 @@ public class PhotoScene extends MTRectangle{
 					}
 					else
 					{
+						//Suppression des photo du workflow
+						for(int i = 0; i < photos[idCellOpened].length; i++)
+						{
+							photos[idCellOpened][i].removeFromParent();
+						}
 						
+						if(cell.id == idCellOpened)
+						{
+							MTComponent[] components = navigateur.getChildren();
+							
+							for(int i = 0; i < components.length; i++)
+							{
+								Cellule cell = (Cellule) components[i].getChildByIndex(idCellOpened);
+								if(cell.id == idCellOpened)
+								{
+									for(int j = 0; j < photos[idCellOpened].length; j++)
+									{	
+										setTailleImage(photos[idCellOpened][j], cellWidth - 250, cellHeight - 150);
+										photos[idCellOpened][j].setPositionRelativeToParent(new Vector3D(cellWidth/2, cellHeight/2 - 20));
+										
+										//photos[idCellOpened][j].setLocalMatrix(photos[idCellOpened][j].shape);
+										//setTailleImage(photos[idCellOpened][j], cellWidth - 250, cellHeight - 150);
+										photos[idCellOpened][j].rotateZ(photos[idCellOpened][j].getCenterPointGlobal(), photos[idCellOpened][j].angle);
+										
+										
+										cell.addChild(photos[idCellOpened][j]);
+									}	
+								}
+							}
+							
+							isCellOpened = false;
+							cell.background.setVisible(false);
+						}
+						else
+						{
+							
+						}
 					}
 				}
 				return false;
