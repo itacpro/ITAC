@@ -1,9 +1,9 @@
-package Interface;
+package photo;
 
 import org.mt4j.MTApplication;
 import org.mt4j.input.inputSources.MacTrackpadSource;
 
-public class StartLogin extends MTApplication{
+public class StartPhoto extends MTApplication{
 	private static final long serialVersionUID = 1L;
 	
 	public static void main(String[] args) {
@@ -11,9 +11,9 @@ public class StartLogin extends MTApplication{
 	}
 	@Override
 	public void startUp() {
-		addScene(new Login(this, "Login Scene"));
+		addScene(new PhotoSceneTest(this, "Login Scene"));
 		
 		//Gestion du touchpad MT des MacBooks.
-		//getInputManager().registerInputSource(new MacTrackpadSource(this));
+		getInputManager().registerInputSource(new MacTrackpadSource(this));
 	}
 }

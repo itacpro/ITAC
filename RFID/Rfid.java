@@ -2,9 +2,9 @@
  * Copyright 2007 Phidgets Inc.  All rights reserved.
  */
 
-package RFID;
+package rfid;
 
-import Itac.Login;
+import itac.Login;
 
 import com.phidgets.*;
 import com.phidgets.event.*;

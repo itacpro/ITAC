@@ -1,4 +1,4 @@
-package Photo;
+package photo;
 
 import org.mt4j.MTApplication;
 import org.mt4j.input.inputSources.MacTrackpadSource;

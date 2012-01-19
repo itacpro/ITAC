@@ -1,9 +1,9 @@
-package ItacPhoto;
+package widgets;
 
 import org.mt4j.MTApplication;
 import org.mt4j.input.inputSources.MacTrackpadSource;
 
-public class StartItacPhoto extends MTApplication{
+public class StartWidget extends MTApplication{
 	private static final long serialVersionUID = 1L;
 	
 	public static void main(String[] args) {
@@ -11,7 +11,7 @@ public class StartItacPhoto extends MTApplication{
 	}
 	@Override
 	public void startUp() {
-		addScene(new ItacPhotoScene(this, "ItacPhoto Scene"));
+		addScene(new Widget(this, "Widget Scene"));
 		
 		//Gestion du touchpad MT des MacBooks.
 		getInputManager().registerInputSource(new MacTrackpadSource(this));
